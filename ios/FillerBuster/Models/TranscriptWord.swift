@@ -11,11 +11,32 @@ struct TranscriptWord: Identifiable, Equatable {
     static let fillerWords: Set<String> = [
         "um", "uh", "like", "you know", "basically", "literally",
         "actually", "honestly", "right", "so", "well", "i mean",
-        "kind of", "sort of", "i guess", "i feel like", "whatever"
+        "kind of", "sort of", "i guess", "i feel like", "whatever",
+        // Hyphenated variations Deepgram produces
+        "uh-oh", "uh-huh", "um-hum", "mm-hmm", "mm-mm"
     ]
 
-    /// Check if a word is a filler (handles multi-word fillers via phrase matching in manager)
+    // Core fillers that should match even in hyphenated words
+    private static let coreFillers: Set<String> = ["um", "uh"]
+
+    /// Check if a word is a filler
+    /// - Exact match: "um", "like", "basically"
+    /// - Hyphenated: "uh-oh" contains "uh"
     static func isFiller(_ word: String) -> Bool {
-        fillerWords.contains(word.lowercased())
+        let lower = word.lowercased()
+
+        // Exact match
+        if fillerWords.contains(lower) {
+            return true
+        }
+
+        // Check if word starts with core filler + hyphen (e.g., "uh-oh", "um-hm")
+        for filler in coreFillers {
+            if lower.hasPrefix("\(filler)-") {
+                return true
+            }
+        }
+
+        return false
     }
 }
