@@ -70,11 +70,11 @@ struct TranscriptWordView: View {
 #Preview {
     VStack(spacing: 20) {
         TranscriptWordView(
-            word: TranscriptWord(id: 0, text: "hello", isFiller: false, isFinal: true, isNew: true),
+            word: TranscriptWord(id: 0, text: "hello", isFiller: false, isFinal: true, isNew: true, startTime: 0, endTime: 0.5, confidence: 0.99, pauseBefore: nil),
             onFillerAppear: {}
         )
         TranscriptWordView(
-            word: TranscriptWord(id: 1, text: "um", isFiller: true, isFinal: true, isNew: true),
+            word: TranscriptWord(id: 1, text: "um", isFiller: true, isFinal: true, isNew: true, startTime: 0.5, endTime: 0.8, confidence: 0.95, pauseBefore: 0.1),
             onFillerAppear: {}
         )
     }

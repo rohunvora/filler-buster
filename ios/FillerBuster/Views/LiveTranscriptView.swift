@@ -106,17 +106,17 @@ struct FlowLayout: Layout {
 
 #Preview {
     let mockWords = [
-        TranscriptWord(id: 0, text: "I", isFiller: false, isFinal: true, isNew: false),
-        TranscriptWord(id: 1, text: "think", isFiller: false, isFinal: true, isNew: false),
-        TranscriptWord(id: 2, text: "that", isFiller: false, isFinal: true, isNew: false),
-        TranscriptWord(id: 3, text: "um", isFiller: true, isFinal: true, isNew: false),
-        TranscriptWord(id: 4, text: "we", isFiller: false, isFinal: true, isNew: false),
-        TranscriptWord(id: 5, text: "should", isFiller: false, isFinal: true, isNew: false),
-        TranscriptWord(id: 6, text: "basically", isFiller: true, isFinal: true, isNew: false),
-        TranscriptWord(id: 7, text: "just", isFiller: false, isFinal: true, isNew: false),
-        TranscriptWord(id: 8, text: "go", isFiller: false, isFinal: true, isNew: true),
+        TranscriptWord(id: 0, text: "I", isFiller: false, isFinal: true, isNew: false, startTime: 0, endTime: 0.2, confidence: 0.99, pauseBefore: nil),
+        TranscriptWord(id: 1, text: "think", isFiller: false, isFinal: true, isNew: false, startTime: 0.2, endTime: 0.5, confidence: 0.99, pauseBefore: 0.05),
+        TranscriptWord(id: 2, text: "that", isFiller: false, isFinal: true, isNew: false, startTime: 0.5, endTime: 0.7, confidence: 0.99, pauseBefore: 0.05),
+        TranscriptWord(id: 3, text: "um", isFiller: true, isFinal: true, isNew: false, startTime: 0.7, endTime: 1.0, confidence: 0.95, pauseBefore: 0.1),
+        TranscriptWord(id: 4, text: "we", isFiller: false, isFinal: true, isNew: false, startTime: 1.0, endTime: 1.2, confidence: 0.99, pauseBefore: 0.05),
+        TranscriptWord(id: 5, text: "should", isFiller: false, isFinal: true, isNew: false, startTime: 1.2, endTime: 1.5, confidence: 0.99, pauseBefore: 0.05),
+        TranscriptWord(id: 6, text: "basically", isFiller: true, isFinal: true, isNew: false, startTime: 1.5, endTime: 2.0, confidence: 0.98, pauseBefore: 0.1),
+        TranscriptWord(id: 7, text: "just", isFiller: false, isFinal: true, isNew: false, startTime: 2.0, endTime: 2.3, confidence: 0.99, pauseBefore: 0.05),
+        TranscriptWord(id: 8, text: "go", isFiller: false, isFinal: true, isNew: true, startTime: 2.3, endTime: 2.5, confidence: 0.99, pauseBefore: 0.05),
     ]
 
-    return LiveTranscriptView(words: mockWords, onFillerDetected: {})
+    LiveTranscriptView(words: mockWords, onFillerDetected: {})
         .background(Theme.background)
 }
