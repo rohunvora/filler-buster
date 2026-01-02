@@ -11,9 +11,55 @@ class TranscriptManager: ObservableObject {
 
     private var finalizedCount: Int = 0
     private var detectedFillerIndices: Set<Int> = []
+    private var lastFinalizedEndTime: Double = 0  // End time of last finalized word
 
     // Multi-word filler phrases to detect
     private let multiWordFillers = ["you know", "i mean", "kind of", "sort of", "i guess", "i feel like"]
+
+    // MARK: - Session Timing Metrics
+
+    /// Total time spent speaking (sum of word durations)
+    var totalSpeakingTime: Double {
+        words.filter { $0.isFinal }.reduce(0) { $0 + $1.duration }
+    }
+
+    /// Total pause time between words
+    var totalPauseTime: Double {
+        words.compactMap { $0.pauseBefore }.reduce(0, +)
+    }
+
+    /// Average pause duration between words
+    var averagePause: Double {
+        let pauses = words.compactMap { $0.pauseBefore }
+        guard !pauses.isEmpty else { return 0 }
+        return pauses.reduce(0, +) / Double(pauses.count)
+    }
+
+    /// Number of long pauses (> 0.5 seconds)
+    var longPauseCount: Int {
+        words.filter { $0.hasLongPauseBefore }.count
+    }
+
+    /// Speaking pace in words per minute
+    var wordsPerMinute: Double {
+        let totalTime = totalSpeakingTime + totalPauseTime
+        guard totalTime > 0 else { return 0 }
+        let finalWords = words.filter { $0.isFinal }.count
+        return Double(finalWords) / totalTime * 60
+    }
+
+    /// Average word confidence from Deepgram
+    var averageConfidence: Double {
+        let finalWords = words.filter { $0.isFinal }
+        guard !finalWords.isEmpty else { return 0 }
+        return finalWords.reduce(0) { $0 + $1.confidence } / Double(finalWords.count)
+    }
+
+    /// Session duration from first word start to last word end
+    var sessionDuration: Double {
+        guard let first = words.first, let last = words.last else { return 0 }
+        return last.endTime - first.startTime
+    }
 
     /// Process a Deepgram response, updating words array
     func processResponse(_ response: DeepgramResponse) {
@@ -35,18 +81,39 @@ class TranscriptManager: ObservableObject {
     /// Handle final (confirmed) words
     private func processFinalResponse(_ responseWords: [DeepgramWord]) {
         // Replace everything after finalizedCount with new final words
+        var previousEndTime = lastFinalizedEndTime
+
         let newWords = responseWords.enumerated().map { index, dgWord -> TranscriptWord in
             let globalIndex = finalizedCount + index
             let isFiller = checkIfFiller(dgWord.word)
             let isNew = globalIndex >= words.count
+
+            // Calculate pause before this word
+            let pauseBefore: Double?
+            if globalIndex == 0 {
+                pauseBefore = nil  // First word has no pause before
+            } else {
+                pauseBefore = max(0, dgWord.start - previousEndTime)
+            }
+
+            previousEndTime = dgWord.end
 
             return TranscriptWord(
                 id: globalIndex,
                 text: dgWord.word,
                 isFiller: isFiller,
                 isFinal: true,
-                isNew: isNew
+                isNew: isNew,
+                startTime: dgWord.start,
+                endTime: dgWord.end,
+                confidence: dgWord.confidence,
+                pauseBefore: pauseBefore
             )
+        }
+
+        // Update last finalized end time
+        if let lastWord = responseWords.last {
+            lastFinalizedEndTime = lastWord.end
         }
 
         // Check for new fillers before updating
@@ -76,6 +143,8 @@ class TranscriptManager: ObservableObject {
     /// Handle interim (partial) words - shown immediately but may change
     private func processInterimResponse(_ responseWords: [DeepgramWord]) {
         // Build new words starting from finalizedCount
+        var previousEndTime = lastFinalizedEndTime
+
         let newWords = responseWords.enumerated().map { index, dgWord -> TranscriptWord in
             let globalIndex = finalizedCount + index
             let isFiller = checkIfFiller(dgWord.word)
@@ -84,12 +153,26 @@ class TranscriptManager: ObservableObject {
             let existingWord = words.first { $0.id == globalIndex }
             let isNew = existingWord == nil
 
+            // Calculate pause before this word
+            let pauseBefore: Double?
+            if globalIndex == 0 {
+                pauseBefore = nil
+            } else {
+                pauseBefore = max(0, dgWord.start - previousEndTime)
+            }
+
+            previousEndTime = dgWord.end
+
             return TranscriptWord(
                 id: globalIndex,
                 text: dgWord.word,
                 isFiller: isFiller,
                 isFinal: false,
-                isNew: isNew
+                isNew: isNew,
+                startTime: dgWord.start,
+                endTime: dgWord.end,
+                confidence: dgWord.confidence,
+                pauseBefore: pauseBefore
             )
         }
 
@@ -134,6 +217,7 @@ class TranscriptManager: ObservableObject {
         fillerCounts = [:]
         finalizedCount = 0
         detectedFillerIndices = []
+        lastFinalizedEndTime = 0
     }
 
     /// Get total filler count
