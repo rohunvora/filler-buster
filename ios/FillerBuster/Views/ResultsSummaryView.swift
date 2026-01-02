@@ -76,14 +76,22 @@ struct ResultsSummaryView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 12)
-                        .background(Theme.accent)
+                        .background(
+                            LinearGradient(
+                                colors: [Theme.accent, Theme.accent.opacity(0.85)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                         .cornerRadius(24)
+                        .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 2)
                 }
             }
             .padding(.horizontal, 20)
         }
         .padding(.vertical, 20)
         .background(Theme.card)
+        .shadow(color: Theme.cardShadow, radius: 8, x: 0, y: -2)
     }
 }
 
@@ -102,8 +110,13 @@ struct FillerPill: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Theme.background)
+        .background(Theme.pressedBackground)
         .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.black.opacity(0.04), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.03), radius: 1, x: 0, y: 1)
     }
 }
 

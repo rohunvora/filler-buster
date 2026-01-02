@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// Minimal design tokens - no shadows, no gradients, just color and type
+/// Design tokens - warm minimal with subtle depth
 enum Theme {
+    // Colors
     static let background = Color(hex: "#f7f5f2")
     static let text = Color(hex: "#2d2a26")
     static let textMuted = Color(hex: "#7a756e")
@@ -9,6 +10,29 @@ enum Theme {
     static let filler = Color(hex: "#e8a87c").opacity(0.3)
     static let recording = Color(hex: "#e85d5d")
     static let card = Color.white
+
+    // Depth tokens (subtle skeuomorphism)
+    static let cardShadow = Color.black.opacity(0.06)
+    static let pressedBackground = Color(hex: "#f0ede9")
+    static let buttonHighlight = Color.white.opacity(0.25)
+    static let pinstripeOpacity: Double = 0.018
+}
+
+/// Subtle vertical pinstripes for retro texture
+struct PinstripeBackground: View {
+    var opacity: Double = Theme.pinstripeOpacity
+
+    var body: some View {
+        Canvas { context, size in
+            let spacing: CGFloat = 4
+            for x in stride(from: 0, to: size.width, by: spacing) {
+                var path = Path()
+                path.move(to: CGPoint(x: x, y: 0))
+                path.addLine(to: CGPoint(x: x, y: size.height))
+                context.stroke(path, with: .color(.black.opacity(opacity)), lineWidth: 1)
+            }
+        }
+    }
 }
 
 extension Color {

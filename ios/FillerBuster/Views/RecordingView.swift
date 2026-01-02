@@ -8,11 +8,13 @@ struct RecordingView: View {
         ZStack {
             Theme.background
                 .ignoresSafeArea()
+            PinstripeBackground()
+                .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // Header (minimal)
                 if !viewModel.isRecording && viewModel.words.isEmpty {
-                    VStack(spacing: 8) {
+                    VStack(spacing: 12) {
                         Text("Filler Buster")
                             .font(.system(size: 28, weight: .medium))
                             .foregroundColor(Theme.text)
@@ -20,6 +22,49 @@ struct RecordingView: View {
                         Text("Tap to start speaking")
                             .font(.system(size: 16))
                             .foregroundColor(Theme.textMuted)
+
+                        // Prompt section
+                        if viewModel.showPrompt {
+                            // Prompt card
+                            VStack(spacing: 12) {
+                                Text(viewModel.currentPrompt)
+                                    .font(.system(size: 17, weight: .medium))
+                                    .foregroundColor(Theme.text)
+                                    .multilineTextAlignment(.center)
+                                    .fixedSize(horizontal: false, vertical: true)
+
+                                Button(action: { viewModel.shufflePrompt() }) {
+                                    Label("shuffle", systemImage: "shuffle")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(Theme.textMuted)
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 8)
+                                        .background(Theme.pressedBackground)
+                                        .cornerRadius(14)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(Color.black.opacity(0.04), lineWidth: 1)
+                                        )
+                                }
+                            }
+                            .padding(20)
+                            .frame(maxWidth: 280)
+                            .background(Theme.card)
+                            .cornerRadius(16)
+                            .shadow(color: Theme.cardShadow, radius: 6, x: 0, y: 2)
+                            .padding(.top, 8)
+                            .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                        } else {
+                            // Prompt trigger
+                            Button("need a topic?") {
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    viewModel.revealPrompt()
+                                }
+                            }
+                            .font(.system(size: 14))
+                            .foregroundColor(Theme.textMuted)
+                            .padding(.top, 4)
+                        }
                     }
                     .padding(.top, 80)
                     .transition(.opacity)
@@ -48,6 +93,13 @@ struct RecordingView: View {
                     // Listening state
                     VStack(spacing: 16) {
                         Spacer()
+                        if !viewModel.currentPrompt.isEmpty {
+                            Text(viewModel.currentPrompt)
+                                .font(.system(size: 15))
+                                .foregroundColor(Theme.textMuted)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 32)
+                        }
                         Text("Listening...")
                             .font(.system(size: 18))
                             .foregroundColor(Theme.textMuted)
@@ -64,8 +116,31 @@ struct RecordingView: View {
                         viewModel.toggleRecording()
                     }) {
                         ZStack {
+                            // Base with gradient
                             Circle()
-                                .fill(viewModel.isRecording ? Theme.recording : Theme.accent)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            viewModel.isRecording ? Theme.recording : Theme.accent,
+                                            (viewModel.isRecording ? Theme.recording : Theme.accent).opacity(0.85)
+                                        ],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                                .frame(width: 72, height: 72)
+                                .scaleEffect(viewModel.isRecording ? viewModel.pulseScale : 1.0)
+                                .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
+
+                            // Highlight overlay
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Theme.buttonHighlight, Color.clear],
+                                        startPoint: .top,
+                                        endPoint: .center
+                                    )
+                                )
                                 .frame(width: 72, height: 72)
                                 .scaleEffect(viewModel.isRecording ? viewModel.pulseScale : 1.0)
 
@@ -101,6 +176,8 @@ struct RecordingView: View {
         .animation(.easeInOut(duration: 0.25), value: viewModel.isRecording)
         .animation(.easeInOut(duration: 0.25), value: viewModel.showResults)
         .animation(.easeInOut(duration: 0.25), value: viewModel.words.isEmpty)
+        .animation(.easeInOut(duration: 0.2), value: viewModel.showPrompt)
+        .animation(.easeInOut(duration: 0.15), value: viewModel.currentPrompt)
     }
 }
 
