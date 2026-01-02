@@ -22,6 +22,13 @@
 		A10013 /* DeepgramModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20013; };
 		A10014 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20014; };
 		A10015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20015; };
+		A10016 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20017; };
+		A10017 /* PersistedWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20018; };
+		A10018 /* AudioStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20019; };
+		A10019 /* SessionPersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20020; };
+		A10020 /* PlaybackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20021; };
+		A10021 /* HistorySheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20022; };
+		A10022 /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20023; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +48,13 @@
 		A20014 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		A20015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A20017 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
+		A20018 /* PersistedWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistedWord.swift; sourceTree = "<group>"; };
+		A20019 /* AudioStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioStorageService.swift; sourceTree = "<group>"; };
+		A20020 /* SessionPersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPersistenceService.swift; sourceTree = "<group>"; };
+		A20021 /* PlaybackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackManager.swift; sourceTree = "<group>"; };
+		A20022 /* HistorySheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistorySheetView.swift; sourceTree = "<group>"; };
+		A20023 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 		A30001 /* FillerBuster.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FillerBuster.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -93,6 +107,8 @@
 				A20004 /* LiveTranscriptView.swift */,
 				A20005 /* TranscriptWordView.swift */,
 				A20006 /* ResultsSummaryView.swift */,
+				A20022 /* HistorySheetView.swift */,
+				A20023 /* SessionDetailView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -112,6 +128,9 @@
 				A20009 /* DeepgramService.swift */,
 				A20010 /* TranscriptManager.swift */,
 				A20011 /* HapticService.swift */,
+				A20019 /* AudioStorageService.swift */,
+				A20020 /* SessionPersistenceService.swift */,
+				A20021 /* PlaybackManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -121,6 +140,8 @@
 			children = (
 				A20012 /* TranscriptWord.swift */,
 				A20013 /* DeepgramModels.swift */,
+				A20017 /* RecordingSession.swift */,
+				A20018 /* PersistedWord.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -233,6 +254,13 @@
 				A10012 /* TranscriptWord.swift in Sources */,
 				A10013 /* DeepgramModels.swift in Sources */,
 				A10014 /* Theme.swift in Sources */,
+				A10016 /* RecordingSession.swift in Sources */,
+				A10017 /* PersistedWord.swift in Sources */,
+				A10018 /* AudioStorageService.swift in Sources */,
+				A10019 /* SessionPersistenceService.swift in Sources */,
+				A10020 /* PlaybackManager.swift in Sources */,
+				A10021 /* HistorySheetView.swift in Sources */,
+				A10022 /* SessionDetailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
