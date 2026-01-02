@@ -33,3 +33,17 @@ coverage/
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# iOS / Xcode
+ios/FillerBuster.xcodeproj/project.xcworkspace/
+ios/FillerBuster.xcodeproj/xcuserdata/
+ios/build/
+ios/DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM

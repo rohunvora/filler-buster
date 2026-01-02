@@ -1,16 +1,14 @@
 import SwiftUI
 
-// Design tokens matching the web app (globals.css)
-extension Color {
-    static let appBackground = Color(hex: "#f7f5f2")    // Warm beige
-    static let textPrimary = Color(hex: "#2d2a26")
+/// Minimal design tokens - no shadows, no gradients, just color and type
+enum Theme {
+    static let background = Color(hex: "#f7f5f2")
+    static let text = Color(hex: "#2d2a26")
     static let textMuted = Color(hex: "#7a756e")
-    static let accent = Color(hex: "#e8a87c")           // Tan/orange
-    static let accentDark = Color(hex: "#c98860")
-    static let recording = Color(hex: "#e85d5d")        // Red
-    static let cardBackground = Color.white
-    static let cardBorder = Color(hex: "#f0ece8")
-    static let errorBackground = Color(hex: "#fff5f5")
+    static let accent = Color(hex: "#e8a87c")
+    static let filler = Color(hex: "#e8a87c").opacity(0.3)
+    static let recording = Color(hex: "#e85d5d")
+    static let card = Color.white
 }
 
 extension Color {
@@ -20,14 +18,14 @@ extension Color {
         Scanner(string: hex).scanHexInt64(&int)
         let a, r, g, b: UInt64
         switch hex.count {
-        case 3: // RGB (12-bit)
+        case 3:
             (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6: // RGB (24-bit)
+        case 6:
             (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: // ARGB (32-bit)
+        case 8:
             (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
         default:
-            (a, r, g, b) = (1, 1, 1, 0)
+            (a, r, g, b) = (255, 0, 0, 0)
         }
         self.init(
             .sRGB,
