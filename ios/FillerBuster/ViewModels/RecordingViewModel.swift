@@ -11,6 +11,44 @@ class RecordingViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var pulseScale: CGFloat = 1.0
 
+    // Prompt state
+    @Published var showPrompt = false
+    @Published private(set) var currentPrompt: String = ""
+
+    // Prompts - designed to trigger natural, passionate speech
+    private let prompts = [
+        // The Rant
+        "What's something that annoys you way more than it should?",
+        "What do people do that makes absolutely no sense to you?",
+        "What's a \"normal\" thing that you think is actually insane?",
+        "What's something broken that everyone just accepts?",
+        "What's a hill you'll die on that most people don't care about?",
+        // The Hot Take
+        "What's your most unpopular opinion?",
+        "What does everyone get wrong about something you know well?",
+        "What's something overhyped right now?",
+        "What's a popular opinion you think is completely backwards?",
+        "What's something people romanticize that actually sucks?",
+        // The Defense
+        "Defend something you love that people mock or dismiss.",
+        "What's something \"lowbrow\" that's actually great?",
+        "Make the case for something everyone thinks is outdated.",
+        "What do you like that you have to defend constantly?",
+        "What's underrated that deserves way more attention?",
+        // The Story
+        "What's the craziest thing you've ever witnessed?",
+        "What happened to you that people don't believe?",
+        "What's a story you always end up telling?",
+        "What's the most unexpected thing that's happened to you?",
+        "What's a moment that completely changed how you see something?",
+        // The Expertise
+        "Explain something you know way too much about.",
+        "What rabbit hole have you gone down recently?",
+        "What's something you understand that most people don't?",
+        "What could you talk about for 30 minutes without notes?",
+        "What do you wish someone had explained to you earlier?"
+    ]
+
     // Services
     private let audioService = AudioCaptureService()
     private var deepgramService: DeepgramService?
@@ -27,6 +65,23 @@ class RecordingViewModel: ObservableObject {
 
     var fillerCounts: [String: Int] {
         transcriptManager.fillerCounts
+    }
+
+    // Timing metrics
+    var wordsPerMinute: Double {
+        transcriptManager.wordsPerMinute
+    }
+
+    var longPauseCount: Int {
+        transcriptManager.longPauseCount
+    }
+
+    var averagePause: Double {
+        transcriptManager.averagePause
+    }
+
+    var sessionDuration: Double {
+        transcriptManager.sessionDuration
     }
 
     init() {
@@ -152,7 +207,27 @@ class RecordingViewModel: ObservableObject {
     /// Clear results and prepare for new recording
     func recordAgain() {
         showResults = false
+        showPrompt = false
+        currentPrompt = ""
         transcriptManager.reset()
+    }
+
+    /// Reveal prompt card with a random prompt
+    func revealPrompt() {
+        if currentPrompt.isEmpty {
+            shufflePrompt()
+        }
+        showPrompt = true
+    }
+
+    /// Get a new random prompt
+    func shufflePrompt() {
+        var newPrompt = prompts.randomElement() ?? prompts[0]
+        // Avoid showing the same prompt twice in a row
+        while newPrompt == currentPrompt && prompts.count > 1 {
+            newPrompt = prompts.randomElement() ?? prompts[0]
+        }
+        currentPrompt = newPrompt
     }
 
     /// Trigger haptic (called from view when filler animates)
