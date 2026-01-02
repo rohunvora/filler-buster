@@ -8,6 +8,23 @@ struct TranscriptWord: Identifiable, Equatable {
     var isFinal: Bool    // Interim words may update
     var isNew: Bool      // Just appeared, should animate
 
+    // Timing data from Deepgram
+    var startTime: Double    // When word began (seconds from start)
+    var endTime: Double      // When word ended (seconds from start)
+    var confidence: Double   // Recognition confidence (0-1)
+    var pauseBefore: Double? // Gap from previous word's end (nil for first word)
+
+    /// Duration of this word in seconds
+    var duration: Double {
+        endTime - startTime
+    }
+
+    /// Whether pause before this word is considered "long" (> 0.5s)
+    var hasLongPauseBefore: Bool {
+        guard let pause = pauseBefore else { return false }
+        return pause > 0.5
+    }
+
     static let fillerWords: Set<String> = [
         // Hesitation sounds
         "um", "uh", "er", "ah", "hmm", "eh",
