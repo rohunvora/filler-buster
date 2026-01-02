@@ -29,6 +29,23 @@ class RecordingViewModel: ObservableObject {
         transcriptManager.fillerCounts
     }
 
+    // Timing metrics
+    var wordsPerMinute: Double {
+        transcriptManager.wordsPerMinute
+    }
+
+    var longPauseCount: Int {
+        transcriptManager.longPauseCount
+    }
+
+    var averagePause: Double {
+        transcriptManager.averagePause
+    }
+
+    var sessionDuration: Double {
+        transcriptManager.sessionDuration
+    }
+
     init() {
         setupBindings()
     }

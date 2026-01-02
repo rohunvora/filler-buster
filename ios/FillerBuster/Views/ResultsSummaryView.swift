@@ -3,6 +3,8 @@ import SwiftUI
 /// Bottom card showing filler counts after recording
 struct ResultsSummaryView: View {
     let fillerCounts: [String: Int]
+    let wordsPerMinute: Double
+    let longPauseCount: Int
     let onRecordAgain: () -> Void
 
     var sortedFillers: [(word: String, count: Int)] {
@@ -13,6 +15,23 @@ struct ResultsSummaryView: View {
 
     var total: Int {
         fillerCounts.values.reduce(0, +)
+    }
+
+    /// Subtle stats line - only shown if we have meaningful data
+    var statsLine: String? {
+        var parts: [String] = []
+
+        // Show pace if we have enough words
+        if wordsPerMinute >= 10 {
+            parts.append("\(Int(wordsPerMinute)) wpm")
+        }
+
+        // Show long pauses if any
+        if longPauseCount > 0 {
+            parts.append("\(longPauseCount) pause\(longPauseCount == 1 ? "" : "s")")
+        }
+
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     var body: some View {
@@ -39,6 +58,14 @@ struct ResultsSummaryView: View {
                     Text("\(total) filler\(total == 1 ? "" : "s")")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(Theme.text)
+
+                    // Subtle timing stats
+                    if let stats = statsLine {
+                        Text(stats)
+                            .font(.system(size: 12))
+                            .foregroundColor(Theme.textMuted)
+                            .padding(.top, 2)
+                    }
                 }
 
                 Spacer()
@@ -85,6 +112,8 @@ struct FillerPill: View {
         Spacer()
         ResultsSummaryView(
             fillerCounts: ["um": 5, "like": 3, "basically": 2],
+            wordsPerMinute: 142,
+            longPauseCount: 3,
             onRecordAgain: {}
         )
     }

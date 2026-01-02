@@ -88,6 +88,8 @@ struct RecordingView: View {
                 if viewModel.showResults {
                     ResultsSummaryView(
                         fillerCounts: viewModel.fillerCounts,
+                        wordsPerMinute: viewModel.wordsPerMinute,
+                        longPauseCount: viewModel.longPauseCount,
                         onRecordAgain: {
                             viewModel.recordAgain()
                         }
