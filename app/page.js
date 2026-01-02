@@ -1,7 +1,17 @@
+/**
+ * Filler Counter - Main Page Component
+ *
+ * A speech analysis tool that records audio, transcribes it via OpenAI Whisper,
+ * and counts filler words to help users improve their speaking clarity.
+ */
 'use client'
 
 import { useState, useRef } from 'react'
 
+/**
+ * List of common filler words to detect in transcribed speech.
+ * These are matched case-insensitively as whole words.
+ */
 const FILLER_WORDS = [
   'um', 'uh', 'like', 'you know', 'basically', 'literally',
   'actually', 'honestly', 'right', 'so', 'well', 'i mean',
@@ -18,6 +28,10 @@ export default function Home() {
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])
 
+  /**
+   * Start recording audio from the user's microphone.
+   * Creates a MediaRecorder and collects audio chunks until stopped.
+   */
   const startRecording = async () => {
     try {
       setError(null)
@@ -47,6 +61,9 @@ export default function Home() {
     }
   }
 
+  /**
+   * Stop recording and trigger audio processing.
+   */
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop()
@@ -56,6 +73,10 @@ export default function Home() {
     }
   }
 
+  /**
+   * Send recorded audio to the transcription API and count filler words.
+   * @param {Blob} audioBlob - The recorded audio as a webm blob
+   */
   const processAudio = async (audioBlob) => {
     try {
       const formData = new FormData()
@@ -88,6 +109,11 @@ export default function Home() {
     }
   }
 
+  /**
+   * Count occurrences of filler words in transcribed text.
+   * @param {string} text - The transcribed text to analyze
+   * @returns {Object} Map of filler words to their counts (only non-zero)
+   */
   const countFillerWords = (text) => {
     const lowerText = text.toLowerCase()
     const counts = {}

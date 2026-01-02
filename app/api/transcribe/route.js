@@ -1,5 +1,18 @@
+/**
+ * Transcription API Route
+ *
+ * Accepts audio file uploads and transcribes them using OpenAI Whisper API.
+ * Returns the transcribed text for filler word analysis.
+ */
 import { NextResponse } from 'next/server'
 
+/**
+ * POST /api/transcribe
+ * Transcribe uploaded audio file to text using OpenAI Whisper.
+ *
+ * @param {Request} request - FormData with 'audio' file field
+ * @returns {Response} JSON with { text: string } or { error: string }
+ */
 export async function POST(request) {
   try {
     const formData = await request.formData()
@@ -20,7 +33,7 @@ export async function POST(request) {
       )
     }
 
-    // Convert to format Whisper accepts
+    // Convert uploaded file to blob format that Whisper API accepts
     const audioBuffer = await audioFile.arrayBuffer()
     const audioBlob = new Blob([audioBuffer], { type: 'audio/webm' })
 
