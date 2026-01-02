@@ -58,6 +58,10 @@ class RecordingViewModel: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
     private var pulseTimer: Timer?
+    
+    // Throttle UI updates to avoid overwhelming the render system
+    private var lastUIUpdateTime: Date = .distantPast
+    private let minUIUpdateInterval: TimeInterval = 0.15  // Max ~6-7 updates per second
 
     /// Inject persistence service from view (which has access to modelContext)
     func setPersistenceService(_ service: SessionPersistenceService) {
@@ -95,11 +99,21 @@ class RecordingViewModel: ObservableObject {
     }
 
     private func setupBindings() {
-        // Forward transcript updates
+        // Forward transcript updates with throttling
+        // Only update UI 6-7 times per second max, not on every single packet
         transcriptManager.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.objectWillChange.send()
+                guard let self = self else { return }
+                
+                let now = Date()
+                let timeSinceLastUpdate = now.timeIntervalSince(self.lastUIUpdateTime)
+                
+                // Always update immediately for final results, throttle interim updates
+                if self.transcriptManager.hasRecentFinalUpdate || timeSinceLastUpdate >= self.minUIUpdateInterval {
+                    self.lastUIUpdateTime = now
+                    self.objectWillChange.send()
+                }
             }
             .store(in: &cancellables)
 

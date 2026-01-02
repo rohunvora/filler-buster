@@ -12,6 +12,12 @@ class TranscriptManager: ObservableObject {
     private var finalizedCount: Int = 0
     private var detectedFillerIndices: Set<Int> = []
     private var lastFinalizedEndTime: Double = 0  // End time of last finalized word
+    
+    // Track when we last processed a final result for throttling
+    private(set) var hasRecentFinalUpdate = false
+    
+    // Single timer for marking words as not new (avoid spam)
+    private var markNotNewTimer: Timer?
 
     // Multi-word filler phrases to detect
     private let multiWordFillers = ["you know", "i mean", "kind of", "sort of", "i guess", "i feel like"]
@@ -80,6 +86,8 @@ class TranscriptManager: ObservableObject {
 
     /// Handle final (confirmed) words
     private func processFinalResponse(_ responseWords: [DeepgramWord]) {
+        hasRecentFinalUpdate = true
+        
         // Replace everything after finalizedCount with new final words
         var previousEndTime = lastFinalizedEndTime
 
@@ -134,9 +142,12 @@ class TranscriptManager: ObservableObject {
         // Update finalized count
         finalizedCount = words.count
 
-        // Mark all words as not new after a brief delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            self?.markAllAsNotNew()
+        // Schedule a single delayed update to mark words as not new
+        scheduleMarkAsNotNew()
+        
+        // Reset final update flag after a brief delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            self?.hasRecentFinalUpdate = false
         }
     }
 
@@ -191,15 +202,24 @@ class TranscriptManager: ObservableObject {
         }
         words.append(contentsOf: newWords)
 
-        // Mark as not new after animation
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            self?.markAllAsNotNew()
-        }
+        // Schedule a single delayed update to mark words as not new
+        scheduleMarkAsNotNew()
     }
 
     /// Check if a word is a filler
     private func checkIfFiller(_ word: String) -> Bool {
         TranscriptWord.isFiller(word)
+    }
+    
+    /// Schedule marking words as not new (coalesces multiple calls)
+    private func scheduleMarkAsNotNew() {
+        // Invalidate any existing timer
+        markNotNewTimer?.invalidate()
+        
+        // Schedule a new timer
+        markNotNewTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: false) { [weak self] _ in
+            self?.markAllAsNotNew()
+        }
     }
 
     /// Mark all words as not new (after animation completes)
@@ -218,6 +238,9 @@ class TranscriptManager: ObservableObject {
         finalizedCount = 0
         detectedFillerIndices = []
         lastFinalizedEndTime = 0
+        hasRecentFinalUpdate = false
+        markNotNewTimer?.invalidate()
+        markNotNewTimer = nil
     }
 
     /// Get total filler count

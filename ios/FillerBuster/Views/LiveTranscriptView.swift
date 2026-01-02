@@ -47,14 +47,24 @@ struct WrappingHStack: View {
 /// Flow layout that wraps children to next line
 struct FlowLayout: Layout {
     var spacing: CGFloat = 6
+    
+    struct Cache {
+        var lastProposalWidth: CGFloat?
+        var lastResult: ArrangeResult?
+        var lastSubviewCount: Int = 0
+    }
+    
+    func makeCache(subviews: Subviews) -> Cache {
+        Cache()
+    }
 
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = arrange(proposal: proposal, subviews: subviews)
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
+        let result = cachedArrange(proposal: proposal, subviews: subviews, cache: &cache)
         return result.size
     }
 
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let result = arrange(proposal: proposal, subviews: subviews)
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
+        let result = cachedArrange(proposal: proposal, subviews: subviews, cache: &cache)
 
         for (index, position) in result.positions.enumerated() {
             subviews[index].place(
@@ -62,6 +72,29 @@ struct FlowLayout: Layout {
                 proposal: ProposedViewSize(result.sizes[index])
             )
         }
+    }
+    
+    private func cachedArrange(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> ArrangeResult {
+        let width = proposal.width ?? .infinity
+        let subviewCount = subviews.count
+        
+        // Use cached result if width and subview count haven't changed
+        if let lastWidth = cache.lastProposalWidth,
+           let lastResult = cache.lastResult,
+           abs(lastWidth - width) < 0.1,
+           cache.lastSubviewCount == subviewCount {
+            return lastResult
+        }
+        
+        // Calculate new layout
+        let result = arrange(proposal: proposal, subviews: subviews)
+        
+        // Update cache
+        cache.lastProposalWidth = width
+        cache.lastResult = result
+        cache.lastSubviewCount = subviewCount
+        
+        return result
     }
 
     private func arrange(proposal: ProposedViewSize, subviews: Subviews) -> ArrangeResult {

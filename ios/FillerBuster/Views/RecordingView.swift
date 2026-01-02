@@ -198,9 +198,7 @@ struct RecordingView: View {
         }
         .animation(.easeInOut(duration: 0.25), value: viewModel.isRecording)
         .animation(.easeInOut(duration: 0.25), value: viewModel.showResults)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.words.isEmpty)
         .animation(.easeInOut(duration: 0.2), value: viewModel.showPrompt)
-        .animation(.easeInOut(duration: 0.15), value: viewModel.currentPrompt)
         .sheet(isPresented: $showHistory) {
             HistorySheetView()
         }

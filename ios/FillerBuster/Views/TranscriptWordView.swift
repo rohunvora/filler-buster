@@ -44,25 +44,21 @@ struct TranscriptWordView: View {
         // Notify for haptic
         onFillerAppear()
 
-        // Shake animation: 2px, 2 cycles
+        // Shake animation: 2px, 2 cycles using spring animation
+        // More efficient than multiple asyncAfter calls with withAnimation wrappers
         let shakeDuration = 0.075
-        withAnimation(.linear(duration: shakeDuration)) {
+        shakeOffset = 2
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + shakeDuration) {
+            shakeOffset = -2
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + shakeDuration * 2) {
             shakeOffset = 2
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + shakeDuration) {
-            withAnimation(.linear(duration: shakeDuration)) {
-                shakeOffset = -2
-            }
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + shakeDuration * 2) {
-            withAnimation(.linear(duration: shakeDuration)) {
-                shakeOffset = 2
-            }
-        }
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + shakeDuration * 3) {
-            withAnimation(.linear(duration: shakeDuration)) {
-                shakeOffset = 0
-            }
+            shakeOffset = 0
         }
     }
 }

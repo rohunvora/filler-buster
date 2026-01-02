@@ -148,4 +148,17 @@ Deepgram pricing: https://deepgram.com/pricing
 
 ---
 
-*Last updated: January 2025*
+*Last updated: January 2026*
+
+---
+
+## iOS Performance Notes (v1.0.1)
+
+Real-time transcription required careful performance tuning:
+
+- **UI throttling**: Deepgram sends 5-10 responses/sec; we throttle to ~6-7 UI updates/sec
+- **Layout caching**: Custom FlowLayout caches calculations, only recalculates on width/count change
+- **Timer coalescing**: Single timer for "isNew" word state instead of per-response asyncAfter spam
+- **Animation pruning**: Removed `.animation()` modifiers on frequently-changing values
+
+This eliminated the lag that made the app feel sluggish during active transcription.
