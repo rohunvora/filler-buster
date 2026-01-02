@@ -7,13 +7,18 @@ import AVFoundation
 class RecordingViewModel: ObservableObject {
     // State
     @Published var isRecording = false
+    @Published var isConnecting = false  // New: shows connecting state
     @Published var showResults = false
     @Published var errorMessage: String?
     @Published var pulseScale: CGFloat = 1.0
+    @Published var connectingRingScale: CGFloat = 1.0  // For ring animation
 
     // Prompt state
     @Published var showPrompt = false
     @Published private(set) var currentPrompt: String = ""
+
+    // Last saved session (for post-recording actions)
+    @Published private(set) var lastSavedSession: RecordingSession?
 
     // Prompts - designed to trigger natural, passionate speech
     private let prompts = [
@@ -58,7 +63,8 @@ class RecordingViewModel: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
     private var pulseTimer: Timer?
-    
+    private var connectingTimer: Timer?
+
     // Throttle UI updates to avoid overwhelming the render system
     private var lastUIUpdateTime: Date = .distantPast
     private let minUIUpdateInterval: TimeInterval = 0.15  // Max ~6-7 updates per second
@@ -130,22 +136,33 @@ class RecordingViewModel: ObservableObject {
     func startRecording() async {
         errorMessage = nil
 
+        // Immediate feedback: light haptic + show connecting state
+        hapticService.prepare()
+        hapticService.lightTap()
+        isConnecting = true
+        startConnectingAnimation()
+
         // Check microphone permission
         let granted = await audioService.requestPermission()
         guard granted else {
             errorMessage = "Microphone access required. Enable in Settings."
+            isConnecting = false
+            stopConnectingAnimation()
             return
         }
 
         // Get API key
         guard let apiKey = getDeepgramAPIKey() else {
             errorMessage = "Deepgram API key not configured"
+            isConnecting = false
+            stopConnectingAnimation()
             return
         }
 
         // Reset state
         transcriptManager.reset()
         showResults = false
+        lastSavedSession = nil
 
         // Initialize Deepgram
         deepgramService = DeepgramService(apiKey: apiKey)
@@ -163,7 +180,7 @@ class RecordingViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] connected in
                 if connected {
-                    self?.startAudioCapture()
+                    self?.onConnectionEstablished()
                 }
             }
             .store(in: &cancellables)
@@ -177,9 +194,19 @@ class RecordingViewModel: ObservableObject {
 
         // Connect to Deepgram
         deepgramService?.connect()
+    }
 
-        // Prepare haptics
-        hapticService.prepare()
+    /// Called when Deepgram connection is established
+    private func onConnectionEstablished() {
+        // Stop connecting animation, start recording
+        isConnecting = false
+        stopConnectingAnimation()
+
+        // Start audio capture
+        startAudioCapture()
+
+        // Confirm recording started with haptic
+        hapticService.mediumTap()
 
         // Start pulse animation
         startPulseAnimation()
@@ -191,6 +218,9 @@ class RecordingViewModel: ObservableObject {
     func stopRecording() {
         isRecording = false
 
+        // Haptic feedback for stop
+        hapticService.mediumTap()
+
         // Stop pulse
         stopPulseAnimation()
 
@@ -201,9 +231,6 @@ class RecordingViewModel: ObservableObject {
         deepgramService?.finishStream()
         deepgramService?.disconnect()
         deepgramService = nil
-
-        // Stop haptics
-        hapticService.stop()
 
         // Clear subscriptions except transcript bindings
         cancellables.removeAll()
@@ -231,7 +258,7 @@ class RecordingViewModel: ObservableObject {
 
         Task {
             do {
-                _ = try persistence.saveSession(
+                let session = try persistence.saveSession(
                     words: transcriptManager.words,
                     fillerCounts: transcriptManager.fillerCounts,
                     wordsPerMinute: transcriptManager.wordsPerMinute,
@@ -240,6 +267,7 @@ class RecordingViewModel: ObservableObject {
                     promptUsed: currentPrompt.isEmpty ? nil : currentPrompt,
                     audioData: audioService.getRecordedAudio()
                 )
+                lastSavedSession = session
                 print("Session saved successfully")
             } catch {
                 print("Failed to save session: \(error)")
@@ -327,5 +355,28 @@ class RecordingViewModel: ObservableObject {
         pulseTimer?.invalidate()
         pulseTimer = nil
         pulseScale = 1.0
+    }
+
+    private func startConnectingAnimation() {
+        connectingRingScale = 1.0
+        connectingTimer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self, self.isConnecting else { return }
+                self.connectingRingScale = 1.0
+                withAnimation(.easeOut(duration: 1.0)) {
+                    self.connectingRingScale = 1.8
+                }
+            }
+        }
+        // Trigger first animation immediately
+        withAnimation(.easeOut(duration: 1.0)) {
+            connectingRingScale = 1.8
+        }
+    }
+
+    private func stopConnectingAnimation() {
+        connectingTimer?.invalidate()
+        connectingTimer = nil
+        connectingRingScale = 1.0
     }
 }

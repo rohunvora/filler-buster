@@ -6,6 +6,8 @@ struct RecordingView: View {
     @StateObject private var viewModel = RecordingViewModel()
     @Environment(\.modelContext) private var modelContext
     @State private var showHistory = false
+    @State private var showSessionDetail = false
+    @State private var showShareSheet = false
 
     var body: some View {
         ZStack {
@@ -35,8 +37,8 @@ struct RecordingView: View {
             }
 
             VStack(spacing: 0) {
-                // Header (minimal)
-                if !viewModel.isRecording && viewModel.words.isEmpty {
+                // Header (minimal) - visible when not recording and no words yet
+                if !viewModel.isRecording && !viewModel.isConnecting && viewModel.words.isEmpty && !viewModel.showResults {
                     VStack(spacing: 12) {
                         Text("Filler Buster")
                             .font(.system(size: 28, weight: .medium))
@@ -46,7 +48,7 @@ struct RecordingView: View {
                             .font(.system(size: 16))
                             .foregroundColor(Theme.textMuted)
 
-                        // Prompt section
+                        // Prompt section (only show picker when not recording)
                         if viewModel.showPrompt {
                             // Prompt card
                             VStack(spacing: 12) {
@@ -105,28 +107,44 @@ struct RecordingView: View {
                         .padding(.top, 20)
                 }
 
-                // Live transcript (hero)
-                if !viewModel.words.isEmpty {
-                    LiveTranscriptView(
-                        words: viewModel.words,
-                        onFillerDetected: { }  // Haptic handled by ViewModel
-                    )
-                    .transition(.opacity)
-                } else if viewModel.isRecording {
-                    // Listening state
-                    VStack(spacing: 16) {
-                        Spacer()
-                        if !viewModel.currentPrompt.isEmpty {
+                // Live transcript (hero) - with prompt above if set
+                if !viewModel.words.isEmpty || viewModel.isRecording || viewModel.isConnecting {
+                    VStack(spacing: 0) {
+                        // Show prompt at top during recording (scrolls away naturally)
+                        if !viewModel.currentPrompt.isEmpty && (viewModel.isRecording || viewModel.isConnecting) {
                             Text(viewModel.currentPrompt)
-                                .font(.system(size: 15))
+                                .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(Theme.textMuted)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 32)
+                                .padding(.top, 60)
+                                .padding(.bottom, 20)
                         }
-                        Text("Listening...")
-                            .font(.system(size: 18))
-                            .foregroundColor(Theme.textMuted)
-                        Spacer()
+
+                        if !viewModel.words.isEmpty {
+                            LiveTranscriptView(
+                                words: viewModel.words,
+                                onFillerDetected: { }  // Haptic handled by ViewModel
+                            )
+                        } else if viewModel.isConnecting {
+                            // Connecting state
+                            VStack(spacing: 16) {
+                                Spacer()
+                                Text("Connecting...")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(Theme.textMuted)
+                                Spacer()
+                            }
+                        } else if viewModel.isRecording {
+                            // Listening state (connected, waiting for speech)
+                            VStack(spacing: 16) {
+                                Spacer()
+                                Text("Listening...")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(Theme.textMuted)
+                                Spacer()
+                            }
+                        }
                     }
                     .transition(.opacity)
                 }
@@ -139,13 +157,22 @@ struct RecordingView: View {
                         viewModel.toggleRecording()
                     }) {
                         ZStack {
-                            // Base with gradient
+                            // Connecting ring animation (behind button)
+                            if viewModel.isConnecting {
+                                Circle()
+                                    .stroke(Theme.recording.opacity(0.3), lineWidth: 2)
+                                    .frame(width: 72, height: 72)
+                                    .scaleEffect(viewModel.connectingRingScale)
+                                    .opacity(2.0 - viewModel.connectingRingScale)  // Fade as it expands
+                            }
+
+                            // Base with gradient - immediately red when connecting or recording
                             Circle()
                                 .fill(
                                     LinearGradient(
                                         colors: [
-                                            viewModel.isRecording ? Theme.recording : Theme.accent,
-                                            (viewModel.isRecording ? Theme.recording : Theme.accent).opacity(0.85)
+                                            (viewModel.isRecording || viewModel.isConnecting) ? Theme.recording : Theme.accent,
+                                            ((viewModel.isRecording || viewModel.isConnecting) ? Theme.recording : Theme.accent).opacity(0.85)
                                         ],
                                         startPoint: .top,
                                         endPoint: .bottom
@@ -167,10 +194,17 @@ struct RecordingView: View {
                                 .frame(width: 72, height: 72)
                                 .scaleEffect(viewModel.isRecording ? viewModel.pulseScale : 1.0)
 
+                            // Icon: stop square when recording, dot when connecting, circle when idle
                             if viewModel.isRecording {
                                 RoundedRectangle(cornerRadius: 4)
                                     .fill(Color.white)
                                     .frame(width: 24, height: 24)
+                            } else if viewModel.isConnecting {
+                                // Pulsing dot while connecting
+                                Circle()
+                                    .fill(Color.white)
+                                    .frame(width: 20, height: 20)
+                                    .opacity(0.8)
                             } else {
                                 Circle()
                                     .fill(Color.white)
@@ -178,6 +212,7 @@ struct RecordingView: View {
                             }
                         }
                     }
+                    .disabled(viewModel.isConnecting)  // Prevent double-tap while connecting
                     .padding(.bottom, 20)
                     .transition(.scale.combined(with: .opacity))
                 }
@@ -188,8 +223,22 @@ struct RecordingView: View {
                         fillerCounts: viewModel.fillerCounts,
                         wordsPerMinute: viewModel.wordsPerMinute,
                         longPauseCount: viewModel.longPauseCount,
+                        hasAudio: viewModel.lastSavedSession?.audioFileName != nil,
                         onRecordAgain: {
                             viewModel.recordAgain()
+                        },
+                        onPlay: {
+                            if viewModel.lastSavedSession != nil {
+                                showSessionDetail = true
+                            }
+                        },
+                        onShare: {
+                            if viewModel.lastSavedSession?.audioFileName != nil {
+                                showShareSheet = true
+                            }
+                        },
+                        onHistory: {
+                            showHistory = true
                         }
                     )
                     .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -197,10 +246,21 @@ struct RecordingView: View {
             }
         }
         .animation(.easeInOut(duration: 0.25), value: viewModel.isRecording)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.isConnecting)
         .animation(.easeInOut(duration: 0.25), value: viewModel.showResults)
         .animation(.easeInOut(duration: 0.2), value: viewModel.showPrompt)
         .sheet(isPresented: $showHistory) {
             HistorySheetView()
+        }
+        .sheet(isPresented: $showSessionDetail) {
+            if let session = viewModel.lastSavedSession {
+                SessionDetailView(session: session)
+            }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            if let fileName = viewModel.lastSavedSession?.audioFileName {
+                ShareSheet(items: [AudioStorageService.shared.audioURL(fileName: fileName)])
+            }
         }
         .onAppear {
             // Inject persistence service

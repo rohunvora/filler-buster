@@ -5,7 +5,11 @@ struct ResultsSummaryView: View {
     let fillerCounts: [String: Int]
     let wordsPerMinute: Double
     let longPauseCount: Int
+    let hasAudio: Bool
     let onRecordAgain: () -> Void
+    let onPlay: () -> Void
+    let onShare: () -> Void
+    let onHistory: () -> Void
 
     var sortedFillers: [(word: String, count: Int)] {
         fillerCounts
@@ -48,6 +52,21 @@ struct ResultsSummaryView: View {
                 }
                 .padding(.bottom, 16)
             }
+
+            // Action buttons row
+            HStack(spacing: 0) {
+                ActionButton(icon: "play.fill", label: "Play", action: onPlay)
+                    .opacity(hasAudio ? 1.0 : 0.4)
+                    .disabled(!hasAudio)
+
+                ActionButton(icon: "square.and.arrow.up", label: "Share", action: onShare)
+                    .opacity(hasAudio ? 1.0 : 0.4)
+                    .disabled(!hasAudio)
+
+                ActionButton(icon: "clock.arrow.circlepath", label: "History", action: onHistory)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 16)
 
             // Total + Record Again
             HStack {
@@ -120,6 +139,30 @@ struct FillerPill: View {
     }
 }
 
+/// Compact action button with icon and label
+struct ActionButton: View {
+    let icon: String
+    let label: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                    .foregroundColor(Theme.accent)
+                Text(label)
+                    .font(.system(size: 11))
+                    .foregroundColor(Theme.textMuted)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 #Preview {
     VStack {
         Spacer()
@@ -127,7 +170,11 @@ struct FillerPill: View {
             fillerCounts: ["um": 5, "like": 3, "basically": 2],
             wordsPerMinute: 142,
             longPauseCount: 3,
-            onRecordAgain: {}
+            hasAudio: true,
+            onRecordAgain: {},
+            onPlay: {},
+            onShare: {},
+            onHistory: {}
         )
     }
     .background(Theme.background)
