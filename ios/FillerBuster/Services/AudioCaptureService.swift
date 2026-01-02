@@ -10,6 +10,9 @@ class AudioCaptureService: ObservableObject {
     private let sampleRate: Double = 16000
     private let bufferSize: AVAudioFrameCount = 1024
 
+    /// Buffer to accumulate audio for persistence
+    private var audioBuffer: Data = Data()
+
     /// Publisher that emits raw PCM audio data chunks
     let audioDataPublisher = PassthroughSubject<Data, Never>()
 
@@ -106,8 +109,23 @@ class AudioCaptureService: ObservableObject {
                 bytes: channelData[0],
                 count: Int(outputBuffer.frameLength) * MemoryLayout<Int16>.size
             )
+            // Stream to Deepgram
             audioDataPublisher.send(data)
+            // Buffer for persistence
+            audioBuffer.append(data)
         }
+    }
+
+    // MARK: - Audio Buffer Access
+
+    /// Get all recorded audio data (for persistence)
+    func getRecordedAudio() -> Data {
+        return audioBuffer
+    }
+
+    /// Clear the audio buffer (call after saving or when starting fresh)
+    func clearAudioBuffer() {
+        audioBuffer = Data()
     }
 }
 

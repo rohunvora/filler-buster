@@ -54,9 +54,15 @@ class RecordingViewModel: ObservableObject {
     private var deepgramService: DeepgramService?
     private let transcriptManager = TranscriptManager()
     private let hapticService = HapticService()
+    private var persistenceService: SessionPersistenceService?
 
     private var cancellables = Set<AnyCancellable>()
     private var pulseTimer: Timer?
+
+    /// Inject persistence service from view (which has access to modelContext)
+    func setPersistenceService(_ service: SessionPersistenceService) {
+        self.persistenceService = service
+    }
 
     // Expose transcript data
     var words: [TranscriptWord] {
@@ -191,6 +197,40 @@ class RecordingViewModel: ObservableObject {
 
         // Show results
         showResults = true
+
+        // Save session to persistence
+        saveCurrentSession()
+    }
+
+    /// Save current session to persistent storage
+    private func saveCurrentSession() {
+        guard let persistence = persistenceService else {
+            print("Warning: No persistence service configured")
+            return
+        }
+
+        // Only save if we have content
+        guard !transcriptManager.words.isEmpty else {
+            print("Skipping save: no words recorded")
+            return
+        }
+
+        Task {
+            do {
+                _ = try persistence.saveSession(
+                    words: transcriptManager.words,
+                    fillerCounts: transcriptManager.fillerCounts,
+                    wordsPerMinute: transcriptManager.wordsPerMinute,
+                    longPauseCount: transcriptManager.longPauseCount,
+                    sessionDuration: transcriptManager.sessionDuration,
+                    promptUsed: currentPrompt.isEmpty ? nil : currentPrompt,
+                    audioData: audioService.getRecordedAudio()
+                )
+                print("Session saved successfully")
+            } catch {
+                print("Failed to save session: \(error)")
+            }
+        }
     }
 
     /// Toggle recording state
@@ -210,6 +250,7 @@ class RecordingViewModel: ObservableObject {
         showPrompt = false
         currentPrompt = ""
         transcriptManager.reset()
+        audioService.clearAudioBuffer()
     }
 
     /// Reveal prompt card with a random prompt

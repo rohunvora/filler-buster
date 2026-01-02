@@ -2,10 +2,7 @@
 
 A speech coaching app that helps you speak more clearly by detecting filler words in real-time.
 
-**Web app**: Batch transcription with filler word counts
-**iOS app**: Real-time transcription with haptic feedback when you say a filler word
-
-## iOS App
+## iOS App (Primary)
 
 The iOS app buzzes your phone the moment you say "um", "like", or other filler words—giving you instant feedback to self-correct.
 
@@ -15,6 +12,9 @@ The iOS app buzzes your phone the moment you say "um", "like", or other filler w
 - **Haptic feedback**: Feel a buzz when you say a filler word
 - **Visual highlighting**: Filler words highlighted with orange background + shake animation
 - **37 filler words detected**: um, uh, like, basically, literally, you know, and more
+- **Session history**: All recordings saved with transcript, stats, and audio
+- **Audio playback**: Replay sessions with synchronized transcript highlighting
+- **Speech prompts**: Random prompts to help you practice speaking naturally
 
 ### Requirements
 
@@ -31,20 +31,9 @@ The iOS app buzzes your phone the moment you say "um", "like", or other filler w
 
 The Deepgram API key is already configured in the app.
 
-## Web App
+## Web App (Archived Prototype)
 
-The original web app uses OpenAI Whisper for batch transcription after recording.
-
-### Setup
-
-```bash
-npm install
-cp .env.example .env
-# Add your OPENAI_API_KEY to .env
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000)
+The original web app in `/app` was an early prototype using OpenAI Whisper for batch transcription. It's kept for reference but is no longer actively developed. Use the iOS app for the best experience.
 
 ## Detected Filler Words
 
@@ -62,31 +51,27 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ```
 filler-buster/
-├── app/                    # Next.js web app
-│   ├── api/transcribe/     # Whisper API endpoint
-│   ├── page.js             # Main UI
-│   └── globals.css         # Styles
-├── ios/                    # iOS app
+├── ios/                        # iOS app (PRIMARY)
 │   ├── FillerBuster/
-│   │   ├── App/            # Entry point
-│   │   ├── Views/          # SwiftUI views
-│   │   ├── ViewModels/     # State management
-│   │   ├── Services/       # Audio, Deepgram, Haptics
-│   │   ├── Models/         # Data models
-│   │   └── Theme/          # Colors
+│   │   ├── App/                # Entry point + SwiftData config
+│   │   ├── Views/              # SwiftUI views
+│   │   │   ├── RecordingView   # Main recording screen
+│   │   │   ├── HistorySheetView # Session history list
+│   │   │   └── SessionDetailView # Playback with synced transcript
+│   │   ├── ViewModels/         # State management
+│   │   ├── Services/           # Audio, Deepgram, Haptics, Persistence
+│   │   ├── Models/             # TranscriptWord, RecordingSession, PersistedWord
+│   │   └── Theme/              # Colors + styling
 │   └── FillerBuster.xcodeproj
+├── app/                        # Web app (archived prototype)
 └── README.md
 ```
 
 ## Tech Stack
 
-**Web**
-- Next.js 16
-- OpenAI Whisper API
-- Vercel
-
 **iOS**
 - SwiftUI + Combine
+- SwiftData (local persistence, iCloud-ready)
 - Deepgram WebSocket (Nova-2)
 - AVFoundation
 

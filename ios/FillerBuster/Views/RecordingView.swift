@@ -1,8 +1,11 @@
 import SwiftUI
+import SwiftData
 
 /// Main recording screen - transcript-centric UI
 struct RecordingView: View {
     @StateObject private var viewModel = RecordingViewModel()
+    @Environment(\.modelContext) private var modelContext
+    @State private var showHistory = false
 
     var body: some View {
         ZStack {
@@ -10,6 +13,26 @@ struct RecordingView: View {
                 .ignoresSafeArea()
             PinstripeBackground()
                 .ignoresSafeArea()
+
+            // History button (top-right)
+            VStack {
+                HStack {
+                    Spacer()
+                    if !viewModel.isRecording && !viewModel.showResults {
+                        Button(action: { showHistory = true }) {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .font(.system(size: 20))
+                                .foregroundColor(Theme.textMuted)
+                                .padding(12)
+                                .contentShape(Rectangle())
+                        }
+                        .transition(.opacity)
+                    }
+                }
+                .padding(.top, 8)
+                .padding(.trailing, 8)
+                Spacer()
+            }
 
             VStack(spacing: 0) {
                 // Header (minimal)
@@ -178,9 +201,18 @@ struct RecordingView: View {
         .animation(.easeInOut(duration: 0.25), value: viewModel.words.isEmpty)
         .animation(.easeInOut(duration: 0.2), value: viewModel.showPrompt)
         .animation(.easeInOut(duration: 0.15), value: viewModel.currentPrompt)
+        .sheet(isPresented: $showHistory) {
+            HistorySheetView()
+        }
+        .onAppear {
+            // Inject persistence service
+            let persistence = SessionPersistenceService(modelContext: modelContext)
+            viewModel.setPersistenceService(persistence)
+        }
     }
 }
 
 #Preview {
     RecordingView()
+        .modelContainer(for: RecordingSession.self, inMemory: true)
 }
