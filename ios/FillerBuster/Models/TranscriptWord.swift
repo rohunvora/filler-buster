@@ -9,9 +9,21 @@ struct TranscriptWord: Identifiable, Equatable {
     var isNew: Bool      // Just appeared, should animate
 
     static let fillerWords: Set<String> = [
-        "um", "uh", "like", "you know", "basically", "literally",
-        "actually", "honestly", "right", "so", "well", "i mean",
-        "kind of", "sort of", "i guess", "i feel like", "whatever",
+        // Hesitation sounds
+        "um", "uh", "er", "ah", "hmm", "eh",
+        // Common fillers
+        "like", "basically", "literally", "actually", "honestly",
+        "right", "so", "well", "whatever",
+        // Emphasis overuse
+        "seriously", "really", "obviously", "clearly",
+        "totally", "absolutely", "definitely",
+        // Affirmation fillers
+        "yeah", "okay",
+        // Transitions
+        "anyway", "anyways",
+        // Phrases
+        "you know", "y'know", "i mean", "kind of", "sort of",
+        "kinda", "sorta", "i guess", "i feel like",
         // Hyphenated variations Deepgram produces
         "uh-oh", "uh-huh", "um-hum", "mm-hmm", "mm-mm"
     ]
