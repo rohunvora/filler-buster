@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// Full detail view for a recording session with audio playback
 struct SessionDetailView: View {
@@ -331,6 +332,6 @@ struct ShareSheet: UIViewControllerRepresentable {
         fillerCountsData: try! JSONEncoder().encode(["um": 2, "like": 1])
     )
 
-    return SessionDetailView(session: session)
+    SessionDetailView(session: session)
         .modelContainer(container)
 }

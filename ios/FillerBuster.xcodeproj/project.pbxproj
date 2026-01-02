@@ -7,28 +7,28 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10001 /* FillerBusterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20001; };
-		A10002 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20002; };
-		A10003 /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20003; };
-		A10004 /* LiveTranscriptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20004; };
-		A10005 /* TranscriptWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20005; };
-		A10006 /* ResultsSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20006; };
-		A10007 /* RecordingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20007; };
-		A10008 /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20008; };
-		A10009 /* DeepgramService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20009; };
-		A10010 /* TranscriptManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20010; };
-		A10011 /* HapticService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20011; };
-		A10012 /* TranscriptWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20012; };
-		A10013 /* DeepgramModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20013; };
-		A10014 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20014; };
-		A10015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20015; };
-		A10016 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20017; };
-		A10017 /* PersistedWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20018; };
-		A10018 /* AudioStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20019; };
-		A10019 /* SessionPersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20020; };
-		A10020 /* PlaybackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20021; };
-		A10021 /* HistorySheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20022; };
-		A10022 /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20023; };
+		A10001 /* FillerBusterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20001 /* FillerBusterApp.swift */; };
+		A10002 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20002 /* OnboardingView.swift */; };
+		A10003 /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20003 /* RecordingView.swift */; };
+		A10004 /* LiveTranscriptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20004 /* LiveTranscriptView.swift */; };
+		A10005 /* TranscriptWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20005 /* TranscriptWordView.swift */; };
+		A10006 /* ResultsSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20006 /* ResultsSummaryView.swift */; };
+		A10007 /* RecordingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20007 /* RecordingViewModel.swift */; };
+		A10008 /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20008 /* AudioCaptureService.swift */; };
+		A10009 /* DeepgramService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20009 /* DeepgramService.swift */; };
+		A10010 /* TranscriptManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20010 /* TranscriptManager.swift */; };
+		A10011 /* HapticService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20011 /* HapticService.swift */; };
+		A10012 /* TranscriptWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20012 /* TranscriptWord.swift */; };
+		A10013 /* DeepgramModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20013 /* DeepgramModels.swift */; };
+		A10014 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20014 /* Theme.swift */; };
+		A10015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20015 /* Assets.xcassets */; };
+		A10016 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20017 /* RecordingSession.swift */; };
+		A10017 /* PersistedWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20018 /* PersistedWord.swift */; };
+		A10018 /* AudioStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20019 /* AudioStorageService.swift */; };
+		A10019 /* SessionPersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20020 /* SessionPersistenceService.swift */; };
+		A10020 /* PlaybackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20021 /* PlaybackManager.swift */; };
+		A10021 /* HistorySheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20022 /* HistorySheetView.swift */; };
+		A10022 /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20023 /* SessionDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -393,7 +393,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 7HTTM2Q8A5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FillerBuster/Resources/Info.plist;
@@ -423,7 +423,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 7HTTM2Q8A5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FillerBuster/Resources/Info.plist;
