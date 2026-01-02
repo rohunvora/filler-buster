@@ -1,77 +1,94 @@
-# Filler Counter
+# Filler Buster
 
-A web app that helps you speak more clearly by counting your filler words (um, uh, like, you know, etc.).
+A speech coaching app that helps you speak more clearly by detecting filler words in real-time.
 
-## How It Works
+**Web app**: Batch transcription with filler word counts
+**iOS app**: Real-time transcription with haptic feedback when you say a filler word
 
-1. Tap the **Record** button and speak
-2. Tap **Stop** when finished
-3. See your filler word counts instantly
+## iOS App
 
-The app uses OpenAI Whisper for speech-to-text transcription, then analyzes the transcript for common filler words.
+The iOS app buzzes your phone the moment you say "um", "like", or other filler words—giving you instant feedback to self-correct.
 
-## Tech Stack
+### Features
 
-- **Framework**: Next.js 16
-- **Speech-to-Text**: OpenAI Whisper API
-- **Deployment**: Vercel
+- **Real-time transcript**: Words appear as you speak (~300ms latency)
+- **Haptic feedback**: Feel a buzz when you say a filler word
+- **Visual highlighting**: Filler words highlighted with orange background + shake animation
+- **37 filler words detected**: um, uh, like, basically, literally, you know, and more
 
-## Getting Started
+### Requirements
 
-### Prerequisites
+- iOS 17+
+- iPhone (haptics don't work in simulator)
+- Deepgram API key
 
-- Node.js 18+
-- OpenAI API key
+### Setup
 
-### Installation
+1. Open `ios/FillerBuster.xcodeproj` in Xcode
+2. Connect your iPhone
+3. Run (⌘R)
+4. Allow microphone access when prompted
+
+The Deepgram API key is already configured in the app.
+
+## Web App
+
+The original web app uses OpenAI Whisper for batch transcription after recording.
+
+### Setup
 
 ```bash
-# Clone the repo
-git clone https://github.com/rohunvora/filler-buster.git
-cd filler-buster
-
-# Install dependencies
 npm install
-
-# Set up environment variables
 cp .env.example .env
 # Add your OPENAI_API_KEY to .env
-
-# Run development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to use the app.
-
-## Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `OPENAI_API_KEY` | Your OpenAI API key for Whisper transcription |
+Open [http://localhost:3000](http://localhost:3000)
 
 ## Detected Filler Words
 
-The app currently detects these filler words:
-
-- um, uh
-- like, you know, I mean
-- basically, literally, actually, honestly
-- right, so, well
-- kind of, sort of
-- I guess, I feel like, whatever
+| Category | Words |
+|----------|-------|
+| Hesitation | um, uh, er, ah, hmm, eh |
+| Common | like, basically, literally, actually, honestly, right, so, well, whatever |
+| Emphasis | seriously, really, obviously, clearly, totally, absolutely, definitely |
+| Affirmation | yeah, okay |
+| Transition | anyway, anyways |
+| Phrases | you know, y'know, i mean, kind of, sort of, kinda, sorta, i guess, i feel like |
+| Hyphenated | uh-oh, uh-huh, um-hum, mm-hmm, mm-mm |
 
 ## Project Structure
 
 ```
 filler-buster/
-├── app/
-│   ├── api/transcribe/route.js  # Whisper API endpoint
-│   ├── page.js                   # Main UI component
-│   ├── layout.js                 # Root layout
-│   └── globals.css               # Styles
-├── .env.example                  # Environment template
-└── package.json
+├── app/                    # Next.js web app
+│   ├── api/transcribe/     # Whisper API endpoint
+│   ├── page.js             # Main UI
+│   └── globals.css         # Styles
+├── ios/                    # iOS app
+│   ├── FillerBuster/
+│   │   ├── App/            # Entry point
+│   │   ├── Views/          # SwiftUI views
+│   │   ├── ViewModels/     # State management
+│   │   ├── Services/       # Audio, Deepgram, Haptics
+│   │   ├── Models/         # Data models
+│   │   └── Theme/          # Colors
+│   └── FillerBuster.xcodeproj
+└── README.md
 ```
+
+## Tech Stack
+
+**Web**
+- Next.js 16
+- OpenAI Whisper API
+- Vercel
+
+**iOS**
+- SwiftUI + Combine
+- Deepgram WebSocket (Nova-2)
+- AVFoundation
 
 ## License
 
