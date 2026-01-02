@@ -78,7 +78,10 @@ struct RecordingView: View {
                             .cornerRadius(16)
                             .shadow(color: Theme.cardShadow, radius: 6, x: 0, y: 2)
                             .padding(.top, 8)
-                            .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                            .transition(.asymmetric(
+                                insertion: .opacity.combined(with: .scale(scale: 0.95)).combined(with: .offset(y: 8)),
+                                removal: .opacity.combined(with: .scale(scale: 0.98))
+                            ))
                         } else {
                             // Prompt trigger
                             Button("need a topic?") {
@@ -241,14 +244,17 @@ struct RecordingView: View {
                             showHistory = true
                         }
                     )
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .bottom).combined(with: .opacity),
+                        removal: .opacity.combined(with: .scale(scale: 0.95))
+                    ))
                 }
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: viewModel.isRecording)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.isConnecting)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.showResults)
-        .animation(.easeInOut(duration: 0.2), value: viewModel.showPrompt)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.isRecording)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.isConnecting)
+        .animation(.spring(response: 0.4, dampingFraction: 0.85), value: viewModel.showResults)
+        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: viewModel.showPrompt)
         .sheet(isPresented: $showHistory) {
             HistorySheetView()
         }

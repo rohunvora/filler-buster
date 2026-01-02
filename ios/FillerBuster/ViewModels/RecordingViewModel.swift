@@ -341,11 +341,11 @@ class RecordingViewModel: ObservableObject {
     }
 
     private func startPulseAnimation() {
-        pulseTimer = Timer.scheduledTimer(withTimeInterval: 0.75, repeats: true) { [weak self] _ in
+        pulseTimer = Timer.scheduledTimer(withTimeInterval: 0.9, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self = self, self.isRecording else { return }
-                withAnimation(.easeInOut(duration: 0.75)) {
-                    self.pulseScale = self.pulseScale == 1.0 ? 1.05 : 1.0
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.5)) {
+                    self.pulseScale = self.pulseScale == 1.0 ? 1.06 : 1.0
                 }
             }
         }
@@ -359,18 +359,18 @@ class RecordingViewModel: ObservableObject {
 
     private func startConnectingAnimation() {
         connectingRingScale = 1.0
-        connectingTimer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: true) { [weak self] _ in
+        connectingTimer = Timer.scheduledTimer(withTimeInterval: 1.3, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self = self, self.isConnecting else { return }
                 self.connectingRingScale = 1.0
-                withAnimation(.easeOut(duration: 1.0)) {
-                    self.connectingRingScale = 1.8
+                withAnimation(.easeOut(duration: 1.1)) {
+                    self.connectingRingScale = 2.0
                 }
             }
         }
         // Trigger first animation immediately
-        withAnimation(.easeOut(duration: 1.0)) {
-            connectingRingScale = 1.8
+        withAnimation(.easeOut(duration: 1.1)) {
+            connectingRingScale = 2.0
         }
     }
 

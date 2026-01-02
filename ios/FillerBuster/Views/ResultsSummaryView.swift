@@ -145,6 +145,8 @@ struct ActionButton: View {
     let label: String
     let action: () -> Void
 
+    @State private var isPressed = false
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 4) {
@@ -158,8 +160,23 @@ struct ActionButton: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .contentShape(Rectangle())
+            .scaleEffect(isPressed ? 0.92 : 1.0)
+            .opacity(isPressed ? 0.7 : 1.0)
         }
         .buttonStyle(.plain)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+                        isPressed = true
+                    }
+                }
+                .onEnded { _ in
+                    withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                        isPressed = false
+                    }
+                }
+        )
     }
 }
 
