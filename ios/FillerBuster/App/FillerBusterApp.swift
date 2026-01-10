@@ -7,8 +7,12 @@ struct FillerBusterApp: App {
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            RecordingSession.self,
-            PersistedWord.self
+            // New Riff models
+            Riff.self,
+            Take.self,
+            PersistedWord.self,
+            // Legacy (keep for migration)
+            RecordingSession.self
         ])
         let config = ModelConfiguration(
             schema: schema,
@@ -25,7 +29,7 @@ struct FillerBusterApp: App {
     var body: some Scene {
         WindowGroup {
             if hasSeenOnboarding {
-                RecordingView()
+                StreamPracticeView()
             } else {
                 OnboardingView()
             }

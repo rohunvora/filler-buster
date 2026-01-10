@@ -47,3 +47,7 @@ ios/DerivedData/
 *.ipa
 *.dSYM.zip
 *.dSYM
+
+# API Keys (local secrets)
+**/APIKeys+Secrets.swift
+**/Secrets.swift

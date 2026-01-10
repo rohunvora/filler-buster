@@ -24,6 +24,8 @@ class DeepgramService: NSObject, ObservableObject {
 
     /// Connect to Deepgram WebSocket
     func connect() {
+        print("[Deepgram] Connecting...")
+
         // Build URL with query parameters
         var components = URLComponents(string: baseURL)!
         components.queryItems = [
@@ -36,9 +38,12 @@ class DeepgramService: NSObject, ObservableObject {
         ]
 
         guard let url = components.url else {
+            print("[Deepgram] ERROR: Invalid URL")
             self.error = DeepgramError.invalidURL
             return
         }
+
+        print("[Deepgram] URL: \(url.absoluteString.prefix(60))...")
 
         var request = URLRequest(url: url)
         request.setValue("Token \(apiKey)", forHTTPHeaderField: "Authorization")
@@ -47,16 +52,28 @@ class DeepgramService: NSObject, ObservableObject {
         urlSession = URLSession(configuration: config, delegate: self, delegateQueue: nil)
         webSocketTask = urlSession?.webSocketTask(with: request)
         webSocketTask?.resume()
+        print("[Deepgram] WebSocket task resumed, waiting for connection...")
 
         receiveMessage()
     }
 
     /// Send audio data to Deepgram
+    private var audioPacketsSent = 0
     func sendAudio(_ data: Data) {
-        guard isConnected else { return }
+        guard isConnected else {
+            // Uncomment for verbose debugging:
+            // print("[Deepgram] sendAudio ignored - not connected")
+            return
+        }
+
+        audioPacketsSent += 1
+        if audioPacketsSent <= 3 || audioPacketsSent % 100 == 0 {
+            print("[Deepgram] Sending audio packet #\(audioPacketsSent), size: \(data.count) bytes")
+        }
 
         webSocketTask?.send(.data(data)) { [weak self] error in
             if let error = error {
+                print("[Deepgram] Send audio ERROR: \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     self?.error = error
                 }
@@ -79,17 +96,23 @@ class DeepgramService: NSObject, ObservableObject {
     }
 
     /// Continuously receive messages from WebSocket
+    private var messagesReceived = 0
     private func receiveMessage() {
         webSocketTask?.receive { [weak self] result in
             guard let self = self else { return }
 
             switch result {
             case .success(let message):
+                self.messagesReceived += 1
+                if self.messagesReceived <= 5 || self.messagesReceived % 20 == 0 {
+                    print("[Deepgram] Received message #\(self.messagesReceived)")
+                }
                 self.handleMessage(message)
                 // Continue receiving
                 self.receiveMessage()
 
             case .failure(let error):
+                print("[Deepgram] Receive ERROR: \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     self.error = error
                     self.isConnected = false
@@ -117,11 +140,21 @@ class DeepgramService: NSObject, ObservableObject {
     private func parseResponse(_ data: Data) {
         do {
             let response = try JSONDecoder().decode(DeepgramResponse.self, from: data)
+            let transcript = response.channel?.alternatives.first?.transcript ?? ""
+            let isFinal = response.isFinal ?? false
+            if !transcript.isEmpty || isFinal {
+                print("[Deepgram] Parsed response: final=\(isFinal), transcript='\(transcript.prefix(50))'")
+            }
             DispatchQueue.main.async {
                 self.responsePublisher.send(response)
             }
         } catch {
-            // Silently ignore parse errors (metadata messages, etc.)
+            // Log the raw message for debugging
+            if let jsonStr = String(data: data, encoding: .utf8) {
+                if jsonStr.count < 200 {
+                    print("[Deepgram] Non-transcript message: \(jsonStr)")
+                }
+            }
         }
     }
 }
@@ -132,6 +165,7 @@ extension DeepgramService: URLSessionWebSocketDelegate {
         webSocketTask: URLSessionWebSocketTask,
         didOpenWithProtocol protocol: String?
     ) {
+        print("[Deepgram] WebSocket CONNECTED (protocol: \(`protocol` ?? "none"))")
         DispatchQueue.main.async {
             self.isConnected = true
         }
@@ -143,6 +177,8 @@ extension DeepgramService: URLSessionWebSocketDelegate {
         didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
         reason: Data?
     ) {
+        let reasonStr = reason.flatMap { String(data: $0, encoding: .utf8) } ?? "none"
+        print("[Deepgram] WebSocket CLOSED (code: \(closeCode.rawValue), reason: \(reasonStr))")
         DispatchQueue.main.async {
             self.isConnected = false
         }

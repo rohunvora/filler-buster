@@ -1,79 +1,75 @@
-# Filler Buster
+# Riff (formerly Filler Buster)
 
-A speech coaching app that helps you speak more clearly by detecting filler words in real-time.
+A speech coaching app for streamers and video creators. Get personalized warm-up drills before you go live.
 
-## iOS App (Primary)
+## What It Does
 
-The iOS app buzzes your phone the moment you say "um", "like", or other filler words—giving you instant feedback to self-correct.
+Tell the app what you're about to stream or record, and it generates a custom practice session with 2-4 drills tailored to your content. Practice your opening hook, nail your key points, and build confidence before hitting record.
 
-### Features
+### Flow
 
-- **Real-time transcript**: Words appear as you speak (~300ms latency)
-- **Haptic feedback**: Feel a buzz when you say a filler word
-- **Visual highlighting**: Filler words highlighted with orange background + shake animation
-- **37 filler words detected**: um, uh, like, basically, literally, you know, and more
-- **Session history**: All recordings saved with transcript, stats, and audio
-- **Audio playback**: Replay sessions with synchronized transcript highlighting
-- **Speech prompts**: Random prompts to help you practice speaking naturally
+1. **Hold to speak** - Tell it what you're making ("I'm streaming a coding session" or "Recording a product demo")
+2. **Answer quick questions** - The AI asks 2-3 clarifying questions (format, audience, what you're nervous about)
+3. **Get your warm-up** - Personalized drills based on your answers
+4. **Practice each drill** - Record yourself, get instant feedback on energy and clarity
+5. **Go crush it** - You're warmed up and ready
 
-### Requirements
+### Drill Types
+
+- **Opening Hook** - Practice your first 15 seconds (critical for retention)
+- **Explain to Chat** - Casual explanations like you're talking to your audience
+- **Recovery** - What to say when you mess up or something breaks
+- **Key Point** - Nail the ONE thing viewers should remember
+- **Wrap Up** - Practice your ending and call-to-action
+- **Handle Question** - Respond to chat questions on the spot
+
+## Requirements
 
 - iOS 17+
-- iPhone (haptics don't work in simulator)
-- Deepgram API key
+- iPhone (haptics work best on device)
+- Deepgram API key (for transcription)
+- Anthropic API key (for AI coaching)
 
-### Setup
+## Setup
 
 1. Open `ios/FillerBuster.xcodeproj` in Xcode
 2. Connect your iPhone
-3. Run (⌘R)
+3. Run (Cmd+R)
 4. Allow microphone access when prompted
 
-The Deepgram API key is already configured in the app.
+API keys are configured in `FillerBuster/App/APIKeys.swift`.
 
-## Web App (Archived Prototype)
+## Tech Stack
 
-The original web app in `/app` was an early prototype using OpenAI Whisper for batch transcription. It's kept for reference but is no longer actively developed. Use the iOS app for the best experience.
-
-## Detected Filler Words
-
-| Category | Words |
-|----------|-------|
-| Hesitation | um, uh, er, ah, hmm, eh |
-| Common | like, basically, literally, actually, honestly, right, so, well, whatever |
-| Emphasis | seriously, really, obviously, clearly, totally, absolutely, definitely |
-| Affirmation | yeah, okay |
-| Transition | anyway, anyways |
-| Phrases | you know, y'know, i mean, kind of, sort of, kinda, sorta, i guess, i feel like |
-| Hyphenated | uh-oh, uh-huh, um-hum, mm-hmm, mm-mm |
+- SwiftUI + Combine
+- Claude API (claude-sonnet-4-20250514) for coaching intelligence
+- Deepgram WebSocket (Nova-2) for real-time transcription
+- AVFoundation for audio capture
 
 ## Project Structure
 
 ```
-filler-buster/
-├── ios/                        # iOS app (PRIMARY)
-│   ├── FillerBuster/
-│   │   ├── App/                # Entry point + SwiftData config
-│   │   ├── Views/              # SwiftUI views
-│   │   │   ├── RecordingView   # Main recording screen
-│   │   │   ├── HistorySheetView # Session history list
-│   │   │   └── SessionDetailView # Playback with synced transcript
-│   │   ├── ViewModels/         # State management
-│   │   ├── Services/           # Audio, Deepgram, Haptics, Persistence
-│   │   ├── Models/             # TranscriptWord, RecordingSession, PersistedWord
-│   │   └── Theme/              # Colors + styling
-│   └── FillerBuster.xcodeproj
-├── app/                        # Web app (archived prototype)
-└── README.md
+ios/FillerBuster/
+├── App/                    # Entry point, API keys
+├── Views/
+│   └── StreamPracticeView  # Main practice flow UI
+├── ViewModels/
+│   └── StreamPracticeViewModel  # Flow state machine
+├── Services/
+│   ├── StreamCoachingService    # Claude API integration
+│   ├── DeepgramService          # Real-time transcription
+│   ├── AudioCaptureService      # Mic input
+│   └── TranscriptManager        # Word processing
+├── Models/
+│   └── StreamPracticeModels     # Drills, sessions, feedback
+└── Theme/                  # Colors + styling
 ```
 
-## Tech Stack
+## Current Stage
 
-**iOS**
-- SwiftUI + Combine
-- SwiftData (local persistence, iCloud-ready)
-- Deepgram WebSocket (Nova-2)
-- AVFoundation
+**Working:** Full stream practice flow with hold-to-record, AI clarifying questions, personalized drill generation, and feedback.
+
+**Next:** Session history, progress tracking across sessions, pattern recognition for recurring issues.
 
 ## License
 
